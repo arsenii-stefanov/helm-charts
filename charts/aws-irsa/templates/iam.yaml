@@ -1,0 +1,82 @@
+{{ range .Values.irsa }}
+{{ $this_app_name := .name }}
+{{ $irsa_aws_name_postfix := printf "-%s" $.Values.clusterName }}
+{{ $irsa_aws_role_name := printf "%s%s%s" $.Values.iamNamePrefix $this_app_name $irsa_aws_name_postfix }}
+{{ $irsa_k8s_role_name := $this_app_name }}
+{{ range .policies }}
+{{ $irsa_aws_policy_name := printf "%s%s-%s%s" $.Values.iamNamePrefix $this_app_name .name $irsa_aws_name_postfix }}
+{{ $irsa_k8s_policy_name := printf "%s-%s" $irsa_k8s_role_name .name }}
+---
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Policy
+metadata:
+  name: {{ $irsa_k8s_policy_name }}
+spec:
+  description: "{{ .description | default "IAM Policy for IAM Role for K8s ServiceAccount" }}"
+  name: {{ $irsa_aws_policy_name }}
+  policyDocument: |
+{{ toPrettyJson .policyDocumentYAML | indent 4}}
+  tags:
+{{ toYaml $.Values.common_tags | indent 4 }}
+{{/*
+  Since we are inside 'range', the local scope '.' for 'include' is replaced with the global one '$',
+  otherwise functions inside _helpers.tpl will not be able to access '.Values'
+*/}}
+{{- include "irsa.cluster_tags" $ | indent 4 }}
+  {{- if $.Values.custom_tags }}
+{{ toYaml $.Values.custom_tags | indent 4 }}
+  {{- end }}
+{{ end }}
+---
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Role
+metadata:
+  name: {{ .name }}
+spec:
+  name: {{ $irsa_aws_role_name }}
+  path: {{ .path | default "/" }}
+  description: "{{ .description | default "IAM Role for K8s ServiceAccount" }}"
+  policies:
+{{- /*
+Iterating over '.polcies' again to generate IAM Policy ARNs. The name below should be equal to '$irsa_aws_policy_name'
+*/}}
+    {{- range .policies }}
+    - arn:aws:iam::{{ $.Values.awsAccountID }}:policy/{{ $.Values.iamNamePrefix }}{{ $this_app_name }}-{{ .name }}{{ $irsa_aws_name_postfix }}
+    {{- end }}
+  assumeRolePolicyDocument: |
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "",
+                "Effect": "Allow",
+                "Principal": {
+                    "Federated": "arn:aws:iam::{{ $.Values.awsAccountID }}:oidc-provider/{{ $.Values.oidc }}"
+                },
+                "Action": "sts:AssumeRoleWithWebIdentity",
+                "Condition": {
+                    "StringEquals": {
+                        "{{ $.Values.oidc }}:sub": "system:serviceaccount:{{ $.Release.Namespace }}:{{ .serviceAccountName }}"
+                    }
+                }
+            }
+        ]
+    }
+  maxSessionDuration: {{ .maxSessionDuration | default "43200" }}
+  tags:
+{{ toYaml $.Values.common_tags | indent 4 }}
+{{ include "irsa.cluster_tags" $ | indent 4 }}
+  {{- if $.Values.custom_tags }}
+{{ toYaml $.Values.custom_tags | indent 4 }}
+  {{- end }}
+{{ if not .doNotCreateServiceAccount }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .serviceAccountName }}
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::{{ $.Values.awsAccountID }}:role/{{ $irsa_aws_role_name }}
+automountServiceAccountToken: true
+{{ end }}
+{{ end }}
