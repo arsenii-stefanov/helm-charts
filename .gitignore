@@ -1,3 +1,4 @@
-**/*.tgz
-**/charts/*/charts
-index.*
+*
+!*.tgz
+!index.yaml
+!index.html

@@ -1,0 +1,16 @@
+apiVersion: v1
+entries:
+  aws-irsa:
+  - apiVersion: v2
+    created: "2022-04-02T20:06:47.182266+03:00"
+    description: A Helm chart for creating AWS IAM roles for K8s ServiceAccounts
+    digest: c18e6104dc7ecbe5fffc680668c4e83971ce4d11fdc9a8ee847940db1ee23d91
+    maintainers:
+    - name: Arsenii
+      url: https://github.com/arsenii-stefanov
+    name: aws-irsa
+    type: application
+    urls:
+    - https://arsenii-stefanov.github.io/helm-charts/aws-irsa-0.0.1.tgz
+    version: 0.0.1
+generated: "2022-04-02T20:06:47.181863+03:00"
