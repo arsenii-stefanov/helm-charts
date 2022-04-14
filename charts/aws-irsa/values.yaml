@@ -8,8 +8,8 @@ clusterName:
 oidc:
 ### Prefix that will be added to each IAM policy and IAM role created by this controller on AWS, must end with a separator supported by AWS, such as '-', or '_'
 iamNamePrefix: "k8s-"
-
-# iamRolePermissionsBoundary: <ARN of a Permissions Boundary IAM policy to be attached to all IAM roles under '.Values.irsa' (conflicts with '.Values.irsa[*].permissionsBoundary'), string>
+### ARN of a Permissions Boundary IAM policy to be attached to all IAM roles under '.Values.irsa'; conflicts with '.Values.irsa[*].permissionsBoundary'
+iamRolePermissionsBoundary: ""
 
 ### Describe your IAM role and policy below
 irsa: []
