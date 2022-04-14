@@ -40,6 +40,8 @@ $ git add .
 $ git status
 $ git commit -m 'Release aws-irsa ver. 0.0.1'
 $ git push origin gh-pages
+### Get the ID of the current commit
+$ git rev-parse HEAD
 $ git tag -a aws-irsa-0.0.1 f65714e1c32da67d7e0b21effbbf56297b3c2c41 -m 'Release aws-irsa ver. 0.0.1'
 ```
 
@@ -49,5 +51,16 @@ $ git tag -a aws-irsa-0.0.1 f65714e1c32da67d7e0b21effbbf56297b3c2c41 -m 'Release
 $ git tag -n
 aws-irsa-0.0.1  Release aws-irsa ver. 0.0.1
 
+$ git push origin aws-irsa-0.0.1
+### or
 $ git push --tags
+```
+
+5. In case you need to untag a commit and tag another commit with this tag:
+
+```
+$ git tag -d <tag_name>                  # delete the old tag locally
+$ git push origin :refs/tags/<tag_name>  # delete the old tag in the remote git
+$ git tag <tag_name> <commit_id>         # use the same tag for another commit
+$ git push origin <tag_name>             # push the tag to the remote git
 ```
