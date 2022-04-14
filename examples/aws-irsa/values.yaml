@@ -1,0 +1,60 @@
+awsAccountID: "123456789012"
+clusterName: test-web-us-east-1
+oidc: oidc.eks.us-east-1.amazonaws.com/id/FA8FBD22483774CDB3A8A53BB269E428
+iamRolePermissionsBoundary: arn:aws:iam::123456789012:policy/AckIamControllerPermissionBoundaryForChildPolicies-test-web-us-east-1
+irsa:
+  ### This will create two set of resources:
+  ### * an IAM role with two IAM policies and a specific Permissions Boundary IAM policy attached, as well as a K8s ServiceAccount
+  ### * an IAM role with one IAM policy and the default Permissions Boundary IAM policy attached; no K8s ServiceAccount will be created
+  - name: test-app-1
+    serviceAccountName: test-app-1
+    maxSessionDuration: 43200
+    permissionsBoundary: arn:aws:iam::123456789012:policy/CustomPermissionsBoundary-us-east-1
+    policies:
+      - name: "main-policy"
+        policyDocumentYAML:
+          Version: "2012-10-17"
+          Statement:
+            - Sid: "Ec2Read"
+              Effect: "Allow"
+              Action:
+                - "ec2:Describe*"
+                - "ec2:Get*"
+                - "ec2:List*"
+              Resource: ["*"]
+              Condition:
+                StringEquals:
+                  "autoscaling:ResourceTag/kubernetes.io/cluster/test-web-us-east-1": "owned"
+                  "aws:RequestedRegion": "us-east-1"
+      - name: "s3-policy"
+        policyDocumentYAML:
+          Version: "2012-10-17"
+          Statement:
+            - Sid: "S3ListBuckets"
+              Effect: "Allow"
+              Action:
+                - "s3:ListBucket"
+              Resource:
+                - "arn:aws:s3:::my-test-bucket-1"
+                - "arn:aws:s3:::my-test-bucket-2"
+            - Sid: "S3GetObjects"
+              Effect: "Allow"
+              Action:
+                - "s3:GetObject"
+              Resource:
+                - "arn:aws:s3:::my-test-bucket-1/*"
+                - "arn:aws:s3:::my-test-bucket-2/*"
+  - name: test-app-2
+    serviceAccountName: test-app-2
+    doNotCreateServiceAccount: true
+    maxSessionDuration: 43200
+    policies:
+      - name: "main-policy"
+        policyDocumentYAML:
+          Version: "2012-10-17"
+          Statement:
+            - Sid: "EksApi"
+              Effect: "Allow"
+              Action:
+                - "eks:AccessKubernetesApi"
+              Resource: ["*"]

@@ -9,22 +9,25 @@ oidc:
 ### Prefix that will be added to each IAM policy and IAM role created by this controller on AWS, must end with a separator supported by AWS, such as '-', or '_'
 iamNamePrefix: "k8s-"
 
+# iamRolePermissionsBoundary: <ARN of a Permissions Boundary IAM policy to be attached to all IAM roles under '.Values.irsa' (conflicts with '.Values.irsa[*].permissionsBoundary'), string>
+
 ### Describe your IAM role and policy below
 irsa: []
 #  - name: <Name of your application, string>
 #    serviceAccountName: <Name of the K8s ServiceAccount, string>
 #    doNotCreateServiceAccount: <Set to true if you don't need a K8s SA object to be created (defaults to - false), boolean>
 #    description: <Description that will be added to both IAM role and IAM policy on AWS, string»
-#     policies:
-#       - name: <policy name, string>
-#         policyDocumentYAML:
-#           Version: "2012-10-17"
-#           Statement:
-#             - Sid: <Name of the policy statement, string>
-#               Effect: "Effect, string, Allow/Deny"
-#               Action:
-#                 - "<Name of an AWS API>:<Action>"
-#               Resource: ["*"]
+#    permissionsBoundary: <ARN of a Permissions Boundary IAM policy to be attached to this IAM role (conflicts with '.Values.iamRolePermissionsBoundary'), string>
+#    policies:
+#      - name: <policy name, string>
+#        policyDocumentYAML:
+#          Version: "2012-10-17"
+#          Statement:
+#            - Sid: <Name of the policy statement, string>
+#              Effect: "Effect, string, Allow/Deny"
+#              Action:
+#                - "<Name of an AWS API>:<Action>"
+#              Resource: ["*"]
 #    maxSessionDuration: <Maximum duration of a session in seconds, int>
 
 ### These tags will be added to each IAM policy and IAM role created by this controller on AWS

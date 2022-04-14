@@ -1,0 +1,13 @@
+apiVersion: v2
+name: test-app
+description: A Helm chart for test-app
+type: application
+version: 0.0.1
+### You will want to use such dependencies in a real use case
+# dependencies:
+#   - name: "some-chart"
+#     version: "1.0.0"
+#     repository: "https://some-helm-repo.github.io/"
+#   - name: "aws-irsa"
+#     version: "0.0.1"
+#     repository: "https://arsenii-stefanov.github.io/helm-charts/"

@@ -1,3 +1,4 @@
-**/*.tgz
+*.tgz
 **/charts/*/charts
+Chart.lock
 index.*

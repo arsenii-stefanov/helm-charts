@@ -36,6 +36,11 @@ spec:
   name: {{ $irsa_aws_role_name }}
   path: {{ .path | default "/" }}
   description: "{{ .description | default "IAM Role for K8s ServiceAccount" }}"
+{{- if .permissionsBoundary }}
+  permissionsBoundary: {{ .permissionsBoundary }}
+{{- else }}
+  permissionsBoundary: {{ $.Values.iamRolePermissionsBoundary }}
+{{- end }}
   policies:
 {{- /*
 Iterating over '.polcies' again to generate IAM Policy ARNs. The name below should be equal to '$irsa_aws_policy_name'
